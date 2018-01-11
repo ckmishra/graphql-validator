@@ -1,7 +1,8 @@
 import * as loader from '@creditkarma/graphql-loader'
 import * as validator from './index'
+import {GraphQLSchema} from 'graphql'
 
-export function loadSchema(schemaPattern: string): Promise<loader.GraphQLSchema> {
+export function loadSchema(schemaPattern: string): Promise<GraphQLSchema> {
   return new Promise((resolve, reject) => {
     console.log(`\nLoading schema from ${schemaPattern}`)
     loader.loadSchema(schemaPattern)
@@ -16,7 +17,7 @@ export function loadSchema(schemaPattern: string): Promise<loader.GraphQLSchema>
   })
 }
 
-export function validateQueries(queriesPattern: string, validSchema: loader.GraphQLSchema): Promise<void> {
+export function validateQueries(queriesPattern: string, validSchema: GraphQLSchema, findDeprecationUsage: false): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     console.log(`\nValidating queries for ${queriesPattern} using loaded schema`)
 
@@ -31,7 +32,7 @@ export function validateQueries(queriesPattern: string, validSchema: loader.Grap
       console.log('\n')
     }
 
-    validator.validateQueryFiles(queriesPattern, validSchema).then(() => {
+    validator.validateQueryFiles(queriesPattern, validSchema, findDeprecationUsage).then(() => {
       console.log('All queries are valid\n')
       resolve()
     }).catch((errs) => {

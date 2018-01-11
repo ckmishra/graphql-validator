@@ -186,7 +186,7 @@ describe('GraphQL Validator', () => {
       let results
       before(() => {
         return validator.loadQueryFiles('./fixtures/queries/*.graphql').then((queries) => {
-          results = validator.validateQueries(queries, schema)
+          results = validator.validateQueries(queries, schema, true)
         })
       })
 
@@ -217,7 +217,7 @@ describe('GraphQL Validator', () => {
       before((done) => {
         validator.validateQueryFiles(gqlGlob, schema).then((r) => {
           results = r
-          validator.validateQueryFiles(gqlGlob, schema, (err, cbr) => {
+          validator.validateQueryFiles(gqlGlob, schema, false, (err, cbr) => {
             cbResults = cbr
             done()
           })
@@ -247,7 +247,7 @@ describe('GraphQL Validator', () => {
       before((done) => {
         validator.validateQueryFiles(gqlGlob, schema).catch((r) => {
           results = r
-          validator.validateQueryFiles(gqlGlob, schema, (err, cbr) => {
+          validator.validateQueryFiles(gqlGlob, schema, false, (err, cbr) => {
             cbResults = cbr
             done()
           })
@@ -271,7 +271,7 @@ describe('GraphQL Validator', () => {
           fs.writeFile(`${root}/operation.graphql`, 'hello', {mode: '333'}, (err) => {
             validator.validateQueryFiles(gqlGlob, schema).catch((r) => {
               results = r
-              validator.validateQueryFiles(gqlGlob, schema, (cbr) => {
+              validator.validateQueryFiles(gqlGlob, schema, false, (cbr) => {
                 cbResults = cbr
                 rimraf(root, done)
               })

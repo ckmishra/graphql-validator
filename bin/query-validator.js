@@ -21,6 +21,6 @@ if (!program.args.length || !program.schema) {
   program.outputHelp()
 } else {
   cli.loadSchema(program.schema)
-    .then((schema) => cli.validateQueries(program.args[0], schema))
+    .then((schema) => cli.validateQueries(program.args[0], schema, program.findDeprected = false))
     .catch((err) => process.exit(1))
 }

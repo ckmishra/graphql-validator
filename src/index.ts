@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as globUtil from 'glob'
-import { DocumentNode, GraphQLError, GraphQLSchema, parse, validate } from 'graphql'
+import { DocumentNode, GraphQLError, GraphQLSchema, parse, validate, findDeprecatedUsages } from 'graphql'
 
 export interface IQueryFileError {
   file: string
@@ -19,6 +19,9 @@ export function validateQuery(schema: GraphQLSchema, document: DocumentNode): Gr
   return validate(schema, document)
 }
 
+export function findDeprecated(schema: GraphQLSchema, document: DocumentNode): GraphQLError[] {
+  return findDeprecatedUsages(schema, document)
+}
 export function loadQueryFiles(glob: string | string[], callback?: ILoadQueryCallback): Promise<DocumentNode[]> {
   return new Promise((resolve, reject) => {
     function loadAll(files) {
@@ -40,7 +43,7 @@ export function loadQueryFiles(glob: string | string[], callback?: ILoadQueryCal
   })
 }
 
-export function validateQueryFiles(glob: string, schema: GraphQLSchema,
+export function validateQueryFiles(glob: string, schema: GraphQLSchema, findDeprecationUsage: false,
                                    callback?: IValidateCallback): Promise<IQueryFileError[]> {
   return new Promise((resolve, reject) => {
     let queries
@@ -50,7 +53,7 @@ export function validateQueryFiles(glob: string, schema: GraphQLSchema,
         return loadQueryFiles(files)
       })
       .then((docs) => {
-        const errors = validateQueries(docs, schema, queries)
+        const errors = validateQueries(docs, schema, findDeprecationUsage, queries)
         if (errors.length) {
           callback ? callback(errors) : reject(errors)
         } else {
@@ -67,11 +70,11 @@ export function validateQueryFiles(glob: string, schema: GraphQLSchema,
   })
 }
 
-export function validateQueries(docs: DocumentNode[], schema: GraphQLSchema, files?: string[]): IQueryFileError[] {
+export function validateQueries(docs: DocumentNode[], schema: GraphQLSchema, findDeprecationUsage: "false", files?: string[]): IQueryFileError[] {
   const results = []
 
   docs.forEach((doc, index) => {
-    const errs = validateQuery(schema, doc)
+    const errs = findDeprecationUsage? findDeprecated(schema, doc): validateQuery(schema, doc)
 
     if (errs.length) {
       results.push({
